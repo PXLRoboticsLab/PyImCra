@@ -18,7 +18,7 @@ You will need the following hardware/software for the project to work:
 1. Clone this repository on your local machine
 2. Open a terminal and cd into the repository
 3. Run the following script:
-`python src/cluster.py /path/to/model.pb /path/to/names/file.txt /path/to/output/dir/`
+`python src/image_scraper.py /path/to/model.pb /path/to/names/file.txt /path/to/output/dir/`
   * model (String): Path to the model (.pb file)
   * names (String): Path to a textfile containing the names of the subreddits (.txt file)
   * out_dir (String): The output directory where the images will be saved 
