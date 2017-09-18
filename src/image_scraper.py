@@ -88,31 +88,30 @@ def main(args, pnet, rnet, onet):
     # Instantiate the class containing the functions to call the Reddit API
     functions = reddit_functions.Functions()
 
-    # Open the text file containing the names into a variable
-    with open(args.names) as file:
-        # Read the text file containing the names line by line
-        for name in file.readlines():
-            # Get the posts from a sub Reddit, strip is so the enter at the end of a line is removed and the backspace
-            # has to be removed because most sub Reddits are "NameLastname"
-            posts = functions.get_posts(name.strip().replace('_', ''), '100')
+    # Open the facenet model
+    with tf.gfile.FastGFile(args.model, 'rb') as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+        _ = tf.import_graph_def(graph_def, name='')
 
-            # Check if the Reddit API returned something
-            if posts is not None:
-                # Get the images from the posts from the sub Reddit
-                images = functions.get_images(posts)
+    with tf.Session() as sess:
+        # Open the text file containing the names into a variable
+        with open(args.names) as file:
+            # Read the text file containing the names line by line
+            for name in file.readlines():
+                # Get the posts from a sub Reddit, strip is so the enter at the end of a line is removed and the backspace
+                # has to be removed because most sub Reddits are "NameLastname"
+                posts = functions.get_posts(name.strip(), '100')
 
-                # Check if the image list is not empty
-                if images is not None:
+                # Check if the Reddit API returned something
+                if posts is not None:
+                    # Get the images from the posts from the sub Reddit
+                    images = functions.get_images(posts)
 
-                    # Open the facenet data
-                    with tf.gfile.FastGFile(args.model, 'rb') as f:
-                        graph_def = tf.GraphDef()
-                        graph_def.ParseFromString(f.read())
-                        _ = tf.import_graph_def(graph_def, name='')
-
-                    with tf.Session() as sess:
+                    # Check if the image list is not empty
+                    if images is not None:
                         # Align the image data
-                        images_aligned = align_data(images, 160, 44, _pnet, _rnet, _onet)
+                        images_aligned = align_data(images, args.image_size, args.margin, _pnet, _rnet, _onet)
 
                         # Get the required input and output tensors
                         images_placeholder = sess.graph.get_tensor_by_name("input:0")
@@ -186,12 +185,17 @@ if __name__ == '__main__':
                         help='The output directory where the image clusters will be saved.')
     parser.add_argument('--image_size', type=int,
                         help='Image size (height, width) in pixels.', default=160)
+    parser.add_argument('--margin', type=int,
+                        help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float,
                         help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
 
     args = parser.parse_args()
 
-    # Creating the 3 layers for the face detection network
+    # Creating the 3 layers for 3 step face detection network
+    # pnet = proposal network
+    # rnet = refinement network
+    # onet = output network
     pnet, rnet, onet = create_network_face_detection()
     # Main entry point into the application, passing the args and the layers for the face detection
     main(args, pnet, rnet, onet)

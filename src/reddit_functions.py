@@ -40,6 +40,32 @@ def get_image(url):
         return None
 
 
+def get_subreddit(search):
+    index = 1
+    search = search.replace("_", "+")
+    url = 'https://www.reddit.com/subreddits/search/.json?q=' + search
+    headers = {
+        'User-Agent': 'sub Reddit scraper 1.0'
+    }
+    r = requests.get(url, headers=headers)
+    # Check if we get the status 200 code from Reddit
+    if r.status_code == requests.codes.ok:
+        data = r.json()['data']['children'][0]['data']['display_name']
+        while search.replace('+', ' ').split(' ')[0].lower() not in data.lower() \
+                and search.replace('+', ' ').split(' ')[1].lower() not in data.lower():
+            try:
+                data = r.json()['data']['children'][index]['data']['display_name']
+                index += 1
+            except Exception:
+                print('Sorry, but there was an error retrieving the subreddit\'s data!')
+                return None
+        print(data)
+        return data
+    else:
+        print('Sorry, but there was an error retrieving the subreddit\'s data!')
+        return None
+
+
 class Functions():
     def __init__(self):
         pass
@@ -47,16 +73,21 @@ class Functions():
     # Method for getting the posts from a sub Reddit
     @staticmethod
     def get_posts(subreddit, postLimit):
-        url = 'http://www.reddit.com/r/' + subreddit + '/.json?limit=' + str(postLimit)
-        headers = {
-            'User-Agent': 'sub Reddit scraper 1.0'
-        }
-        # Make the request to the Reddit API
-        r = requests.get(url, headers=headers)
-        # Check if we get the status 200 code from Reddit
-        if r.status_code == requests.codes.ok:
-            data = r.json()
-            return data['data']['children']
+        sub = get_subreddit(subreddit)
+        if sub is not None:
+            url = 'http://www.reddit.com/r/' + sub + '/.json?limit=' + str(postLimit)
+            headers = {
+                'User-Agent': 'sub Reddit scraper 1.0'
+            }
+            # Make the request to the Reddit API
+            r = requests.get(url, headers=headers)
+            # Check if we get the status 200 code from Reddit
+            if r.status_code == requests.codes.ok:
+                data = r.json()
+                return data['data']['children']
+            else:
+                print('Sorry, but there was an error retrieving the subreddit\'s data!')
+                return None
         else:
             print('Sorry, but there was an error retrieving the subreddit\'s data!')
             return None
