@@ -101,7 +101,7 @@ def main(args, pnet, rnet, onet):
             for name in file.readlines():
                 # Get the posts from a sub Reddit, strip is so the enter at the end of a line is removed and the backspace
                 # has to be removed because most sub Reddits are "NameLastname"
-                posts = functions.get_posts(name.strip(), '100')
+                posts = functions.get_posts(name.strip(), str(args.limit))
 
                 # Check if the Reddit API returned something
                 if posts is not None:
@@ -189,6 +189,8 @@ if __name__ == '__main__':
                         help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float,
                         help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
+    parser.add_argument('--limit', type=int,
+                        help='Maximum number of posts to get from a subreddit.', default=100)
 
     args = parser.parse_args()
 
