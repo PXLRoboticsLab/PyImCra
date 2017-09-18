@@ -51,12 +51,12 @@ def get_subreddit(search):
     r = requests.get(url, headers=headers)
     # Check if we get the status 200 code from Reddit
     if r.status_code == requests.codes.ok:
-        print(len(r.json()))
+        print(len(r.json()['data']['children']))
         data = r.json()['data']['children'][0]['data']['display_name']
         while search.replace('+', ' ').split(' ')[0].lower() not in data.lower() \
                 and search.replace('+', ' ').split(' ')[1].lower() not in data.lower():
             print(data)
-            if index < len(r.json()):
+            if index < len(r.json()['data']['children']):
                 data = r.json()['data']['children'][index]['data']['display_name']
                 index += 1
             else:
