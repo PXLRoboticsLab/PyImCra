@@ -44,25 +44,26 @@ def get_subreddit(search):
     index = 1
     search = search.replace("_", "+")
     url = 'https://www.reddit.com/subreddits/search/.json?q=' + search
+    print(url)
     headers = {
         'User-Agent': 'sub Reddit scraper 1.0'
     }
     r = requests.get(url, headers=headers)
     # Check if we get the status 200 code from Reddit
     if r.status_code == requests.codes.ok:
+        print(len(r.json()))
         data = r.json()['data']['children'][0]['data']['display_name']
         while search.replace('+', ' ').split(' ')[0].lower() not in data.lower() \
                 and search.replace('+', ' ').split(' ')[1].lower() not in data.lower():
-            try:
+            print(data)
+            if index < len(r.json()):
                 data = r.json()['data']['children'][index]['data']['display_name']
                 index += 1
-            except Exception:
-                print('Sorry, but there was an error retrieving the subreddit\'s data!')
+            else:
                 return None
         print(data)
         return data
     else:
-        print('Sorry, but there was an error retrieving the subreddit\'s data!')
         return None
 
 
@@ -87,9 +88,10 @@ class Functions():
                 return data['data']['children']
             else:
                 print('Sorry, but there was an error retrieving the subreddit\'s data!')
+                print(r.json())
                 return None
         else:
-            print('Sorry, but there was an error retrieving the subreddit\'s data!')
+            print('Sorry, could not find a subreddit.')
             return None
 
 
