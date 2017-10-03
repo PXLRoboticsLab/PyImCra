@@ -27,3 +27,6 @@ You will need the following hardware/software for the project to work:
   
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/PXL-IT/PyImCra/blob/image/LICENSE.md) file for details.
+## Authors
+* [Thijs Lanssens](https://github.com/Lanssens) 
+* [Maarten Bloemen](https://github.com/MaartenBloemen) 
